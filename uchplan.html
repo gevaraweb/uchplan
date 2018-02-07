@@ -2,6 +2,45 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 	<head>
 		<link rel="stylesheet" type="text/css" href="tablestyle.css">
+		 <style>
+		   #leftContent {
+			float: left; /* Обтекание по правому краю */
+			border1: 1px solid black; /* Параметры рамки */
+			padding: 10px; /* Поля вокруг текста */
+			margin-right: 20px; /* Отступ справа */
+			width: 500px;
+		   }
+
+		   #rightContent {
+			border1: 1px solid black; /* Параметры рамки */
+			padding: 10px; /* Поля вокруг текста */
+		   }
+		   
+			input.sel {
+				background: -moz-linear-gradient(#00BBD6, #EBFFFF);
+				background: -webkit-gradient(linear, 0 0, 0 100%, from(#00BBD6), to(#EBFFFF));
+				filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#00BBD6', endColorstr='#EBFFFF');
+				padding: 3px 7px;
+				color: #333;
+				-moz-border-radius: 5px;
+				-webkit-border-radius: 5px;
+				border-radius: 5px;
+				border: 1px solid #666;
+			}
+			
+			input.new {
+				background: -moz-linear-gradient(#ccc,#fff);
+				background: -webkit-gradient(linear, 0 0, 0 100%, from(#ccc), to(#fff));
+				filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ccc', endColorstr='#fff');
+				padding: 3px 7px;
+				color: #333;
+				-moz-border-radius: 5px;
+				-webkit-border-radius: 5px;
+				border-radius: 5px;
+				border: 1px solid #666;
+			}			
+		  </style>		
+		
 		<title>Чтение учебного плана для РУП</title>
 		<script type='text/javascript' src='js/jquery.min.js?ver=4.9.2'></script>
 		<script type="text/javascript" src="https://gevaraweb.github.io/jsXmlSaxParser/examples/xml_samples.js"></script>
@@ -12,20 +51,21 @@
 		<script type="text/javascript" src="js/jquery.tablesorter.min.js"></script>
 		<script type="text/javascript">
 		
-		var xml = loadXml(); var textParsed = "";
+		//var xml = loadXml(); 
+		var textParsed = [ "", "" ];
+		var id_msg, id_myTable, Mmode;
 		
-		function check() {
+		function check( idName, idMsg, mode ) {
 		
-			var e = document.getElementById("ddlViewBy");
+			var e = document.getElementById( idName );
 			kursSelNumber = parseInt( e.options[e.selectedIndex].value );
-			
-			var textarea = document.getElementById("xml");
-			var div = document.getElementById("msg");
-                        div.innerHTML = "";
+			var div = document.getElementById(idMsg);
+            div.innerHTML = "";
 			var contentHandler = new DummyContentHandler(div);
 			var saxParser = new SAXParser(contentHandler, contentHandler, contentHandler, contentHandler, contentHandler);
-                      //  saxParser.parseString(textarea.value);
-						saxParser.parseString( textParsed );
+       
+			id_msg = "msg" + mode; id_myTable = "myTable" + mode;
+			saxParser.parseString( textParsed[ mode - 1 ]  );
 						
 		}
 		
@@ -41,7 +81,7 @@
 			   });
 			   */
 			   
-		function readSingleFile(e) {
+		function readSingleFile1(e) {
 			  var file = e.target.files[0];
 			  if (!file) {
 				return;
@@ -49,33 +89,85 @@
 			  var reader = new FileReader();
 			  reader.onload = function(e) {
 				var contents = e.target.result;
-				displayContents(contents);
+				textParsed[0] = contents; 
+			  };
+			  reader.readAsText(file);
+			}
+			
+		function readSingleFile2(e) {
+			  var file = e.target.files[0];
+			  if (!file) {
+				return;
+			  }
+			  var reader = new FileReader();
+			  reader.onload = function(e) {
+				var contents = e.target.result;
+				textParsed[1] = contents; 
 			  };
 			  reader.readAsText(file);
 			}
 
-			function displayContents(contents) {
-			  textParsed = contents;
-			}
-
-			document.getElementById('file-input').addEventListener('change', readSingleFile, false);				
-			
-			   
+			document.getElementById('file-input1').addEventListener('change', readSingleFile1, false);				
+			document.getElementById('file-input2').addEventListener('change', readSingleFile2, false);			
+			 	
 		}); 	
+			
+		function compare() {
+			
+			var table1 = document.getElementById("myTable1");
+			var table2 = document.getElementById("myTable2");	
+				var rowscount1 = table1.rows.length;
+				var colcount1 = table1.rows[0].cells.length;
 				
+				var rowscount2 = table2.rows.length;
+				var colcount2 = table2.rows[0].cells.length;
+				var row, row2;
+				
+				for (var i = 0; i<rowscount1; i++) {
+					row = table1.rows[i]; 
+						
+					for (var i2 = 0; i2<rowscount2; i2++) {
+						row2 = table2.rows[i2];
+					if ( row.cells[0].innerHTML == row2.cells[0].innerHTML && row.cells[1].innerHTML == row2.cells[1].innerHTML ) {
+					
+						row.cells[0].style.backgroundColor = "#90EE90";
+						row2.cells[0].style.backgroundColor = "#90EE90";
+						row.cells[1].style.backgroundColor = "#90EE90";
+						row2.cells[1].style.backgroundColor = "#90EE90";	
+						//	console.log( "colcount2 " + colcount2 ); 
+					   for (var j2 = 2; j2<colcount2; j2++) {
+							//console.log( "j2 " + j2 ); 			   
+							//console.log( "row.cells[j2].innerHTML " + row.cells[j2].innerHTML ); 
+							if ( row.cells[j2].innerHTML == row2.cells[j2].innerHTML ) {
+								row.cells[j2].style.backgroundColor = "#90EE90";
+								row2.cells[j2].style.backgroundColor = "#90EE90";						
+							}
+					   
+					   }  						
+						
+					}
+					
+
+				}			
+				
+				
+				}
+			
+		}			
 		</script>
 		
-	</head>
+</head>
 	
-	<body>
-		<p> Добро пожаловать! На этой странице вы можете получить РУП по файлу учебного плана формата .plm.xml или .plz.xml</p>
-		
+<body>
+<p> Добро пожаловать! На этой странице вы можете получить РУП по файлу учебного плана формата .plm.xml или .plz.xml</p>
+
+	<div id="leftContent">	
 		<div>
-			<input type="file" id="file-input" />
+			<input type="file" id="file-input1" />
 		</div>
 		<br>
 	<div>		
-		<select id="ddlViewBy" >
+		<select id="ddlViewBy1" >
 			  <option value="1" selected="selected">первый курс</option>
 			  <option value="2">второй курс</option>
 			  <option value="3">третий курс</option>
@@ -88,9 +180,38 @@
 
 <br>
 		<div>
-			<input type="button" onclick="check()" value="start"/>
+			<input type="button" class="new" onclick="check('ddlViewBy1', 'msg1', 1)" value="start"/>
 		</div>
 		<br>
-				<div id="msg"></div>
-	</body>
+				<div id="msg1"></div>
+	</div>
+	
+	<div id="rightContent">	
+		<div>
+			<input type="file" id="file-input2" />
+		</div>
+		<br>
+	<div>		
+		<select id="ddlViewBy2" >
+			  <option value="1" selected="selected">первый курс</option>
+			  <option value="2">второй курс</option>
+			  <option value="3">третий курс</option>
+			  <option value="4">четвертый курс</option>			  
+			  <option value="5">пятый курс</option>
+			  <option value="6">шестой курс</option>			  
+			  
+		</select>
+	</div>
+
+<br>
+		<div>
+			<input type="button" class="new" onclick="check('ddlViewBy2', 'msg2', 2)" value="start"/>
+			&emsp; <input type="button" class="sel" onclick="compare()" value="Сравнить"/>			
+		</div>
+		<br>
+				<div id="msg2"></div>	
+	
+	
+	</div>
+</body>
 </html>
