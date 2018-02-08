@@ -51,16 +51,16 @@
 		<script type="text/javascript" src="js/jquery.tablesorter.min.js"></script>
 		<script type="text/javascript">
 		
-		//var xml = loadXml(); 
 		var textParsed = [ "", "" ];
 		var id_msg, id_myTable, Mmode;
+		var flagShowCode = false;
 		
 		function check( idName, idMsg, mode ) {
 		
 			var e = document.getElementById( idName );
 			kursSelNumber = parseInt( e.options[e.selectedIndex].value );
 			var div = document.getElementById(idMsg);
-            div.innerHTML = "";
+           		div.innerHTML = "";
 			var contentHandler = new DummyContentHandler(div);
 			var saxParser = new SAXParser(contentHandler, contentHandler, contentHandler, contentHandler, contentHandler);
        
@@ -70,6 +70,15 @@
 		}
 		
 		$(document).ready(function() {
+		
+		var checkbox = document.getElementById('showCode');
+
+		checkbox.addEventListener('change', function () {
+			flagShowCode = this.checked ? true : false;
+			//alert( flagShowCode );
+		});
+		
+		
 			/*
 			   $.ajax({
 				   url : "xml/oop.xml",
@@ -176,6 +185,11 @@
 			  <option value="6">шестой курс</option>			  
 			  
 		</select>
+		
+		<span>
+			&emsp;<input type="checkbox" id="showCode">
+			<label for="showCode"><small>Показывать код дисциплин</small></label>
+		 </span>
 	</div>
 
 <br>
